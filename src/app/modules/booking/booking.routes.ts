@@ -26,4 +26,4 @@ router.patch(
   bookingController.cancelBooking,
 )
 
-export default router
+export const bookingRoutes = router
