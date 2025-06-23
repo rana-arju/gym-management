@@ -46,13 +46,33 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
     message: "User updated successfully",
     data: result,
   })
-});const deleteUser = catchAsync(async (req: Request, res: Response) => {
+});
+const deleteUser = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.deleteUser(req.params.id);
 
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "User deleted successfully",
+    data: result,
+  })
+});
+const getTrainerSchedule = catchAsync(async (req: Request, res: Response) => {
+  const result = await userService.getTrainerSchedule(req.params.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Trainer schedule retrieved successfully",
+    data: result,
+  })
+});const getMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const result = await userService.getUserById(req.user!.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Profile retrieved successfully",
     data: result,
   })
 });
@@ -63,7 +83,9 @@ export const userController = {
   getAllUsers,
   getUserById,
   updateUser,
-  deleteUser
+  deleteUser,
+  getTrainerSchedule,
+  getMyProfile
 };
 
 
@@ -73,42 +95,6 @@ export const userController = {
  
 
 
-
-  async getTrainerSchedule(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try {
-      const page = Number.parseInt(req.query.page as string) || 1
-      const limit = Number.parseInt(req.query.limit as string) || 10
-
-      const result = await userService.getTrainerSchedule(req.params.id, page, limit)
-
-      sendResponse(res, {
-        success: true,
-        statusCode: 200,
-        message: "Trainer schedule retrieved successfully",
-        data: result,
-      })
-    } catch (error: any) {
-      if (error.message === "Trainer not found") {
-        return sendErrorResponse(res, 404, error.message)
-      }
-      next(error)
-    }
-  },
-
-  async getMyProfile(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try {
-      const result = await userService.getUserById(req.user!.id)
-
-      sendResponse(res, {
-        success: true,
-        statusCode: 200,
-        message: "Profile retrieved successfully",
-        data: result,
-      })
-    } catch (error) {
-      next(error)
-    }
-  },
 
   async updateMyProfile(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
