@@ -37,53 +37,42 @@ const getUserById = catchAsync(async (req: Request, res: Response) => {
     data: result,
   })
 });
+const updateUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await userService.updateUser(req.params.id, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "User updated successfully",
+    data: result,
+  })
+});const deleteUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await userService.deleteUser(req.params.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "User deleted successfully",
+    data: result,
+  })
+});
+
+
 export const userController = {
   createTrainer,
   getAllUsers,
-  getUserById
+  getUserById,
+  updateUser,
+  deleteUser
 };
 
 
 
 
 
-  async updateUser(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try {
-      const result = await userService.updateUser(req.params.id, req.body)
+ 
 
-      sendResponse(res, {
-        success: true,
-        statusCode: 200,
-        message: "User updated successfully",
-        data: result,
-      })
-    } catch (error: any) {
-      if (error.message === "User not found") {
-        return sendErrorResponse(res, 404, error.message)
-      }
-      next(error)
-    }
-  },
 
-  async deleteUser(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try {
-      const result = await userService.deleteUser(req.params.id)
-
-      sendResponse(res, {
-        success: true,
-        statusCode: 200,
-        message: result.message,
-      })
-    } catch (error: any) {
-      if (error.message === "User not found") {
-        return sendErrorResponse(res, 404, error.message)
-      }
-      if (error.message.includes("Cannot delete trainer") || error.message.includes("Cannot delete trainee")) {
-        return sendErrorResponse(res, 400, error.message)
-      }
-      next(error)
-    }
-  },
 
   async getTrainerSchedule(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
