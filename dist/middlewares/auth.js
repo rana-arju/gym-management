@@ -1,43 +1,28 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.auth = void 0;
-const database_1 = __importDefault(require("../shared/database"));
 const AppError_1 = __importDefault(require("../app/error/AppError"));
-const auth = (...requiredRoles) => {
-    return (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
-        const userId = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1]; // Get userId from "Bearer <userId>"
-        if (!userId) {
-            return next(new AppError_1.default(401, "You are unauthorized to access"));
+const jwt_1 = require("../app/utils/jwt");
+const config_1 = __importDefault(require("../config"));
+const auth = (...roles) => {
+    return (req, res, next) => {
+        try {
+            const token = req.headers.authorization;
+            if (!token) {
+                throw new AppError_1.default(401, "Unauthorized: No token provided");
+            }
+            const verify = (0, jwt_1.verifyToken)(token, config_1.default.jwt.jwtSecret);
+            if (!verify || !roles.includes(verify.role)) {
+                throw new AppError_1.default(403, "Forbidden: You do not have permission to access this resource");
+            }
+            req.user = verify;
+            next();
         }
-        // Fetch user from MongoDB using Prisma based on the userId passed in the token
-        const user = yield database_1.default.user.findUnique({ where: { id: userId } });
-        if (!user) {
-            return next(new AppError_1.default(404, "User not found"));
+        catch (error) {
+            next(error);
         }
-        // Check for role-based access control
-        if (requiredRoles.length &&
-            !requiredRoles.includes(user.role)) {
-            return next(new AppError_1.default(403, "You are not authorized to access this resource"));
-        }
-        req.user = {
-            id: user.id,
-            role: user === null || user === void 0 ? void 0 : user.role,
-            email: user === null || user === void 0 ? void 0 : user.email,
-        }; // Set user in the request object
-        next();
-    });
+    };
 };
-exports.auth = auth;
+exports.default = auth;

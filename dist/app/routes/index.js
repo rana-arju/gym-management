@@ -15,11 +15,11 @@ const moduleRoutes = [
         route: auth_routes_1.authRoutes,
     },
     {
-        path: "/user",
+        path: "/users",
         route: user_routes_1.userRoutes,
     },
     {
-        path: "/booking",
+        path: "/bookings",
         route: booking_routes_1.bookingRoutes,
     },
     {

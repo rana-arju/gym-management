@@ -929,7 +929,7 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ## ❌ Error Response Examples
 
 ### Validation Error
-``json
+```json
 {
   "success": false,
   "statusCode": 400,
