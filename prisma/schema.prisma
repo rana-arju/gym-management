@@ -6,9 +6,27 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+enum UserRole {
+  ADMIN
+  TRAINER
+  TRAINEE
+}
 
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
 model User {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
-  name  String
-  email String @unique
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  name      String
+  role      UserRole @default(TRAINEE)
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+  @@map("users")
 }
