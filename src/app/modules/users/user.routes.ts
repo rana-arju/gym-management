@@ -1,36 +1,67 @@
-import { Router } from "express"
-import { userController } from "./user.controller"
-import { authenticate, authorize } from "@/shared/middleware/auth"
-import { validateRequest } from "@/shared/middleware/validation"
-import { createTrainerSchema, updateUserSchema, getUserSchema } from "./user.validation"
-import { UserRole } from "@prisma/client"
+import { Router } from "express";
+import { userController } from "./user.controller";
+import {
+  createTrainerSchema,
+  updateUserSchema,
+  getUserSchema,
+} from "./user.validation";
+import { UserRole } from "@prisma/client";
+import { validateRequest } from "../../../middlewares/validation";
+import { auth } from "../../../middlewares/auth";
 
-const router = Router()
+const router = Router();
 
 // All routes require authentication
-router.use(authenticate)
 
 // Profile routes (accessible by all authenticated users)
-router.get("/profile", userController.getMyProfile)
-router.put("/profile", userController.updateMyProfile)
+router.get(
+  "/profile",
+  auth(UserRole.ADMIN, UserRole.TRAINEE, UserRole.TRAINER),
+  userController.getMyProfile
+);
+router.put(
+  "/profile",
+  auth(UserRole.ADMIN, UserRole.TRAINEE, UserRole.TRAINER),
+  userController.updateMyProfile
+);
 
 // Admin only routes
-router.post("/trainers", authorize(UserRole.ADMIN), validateRequest(createTrainerSchema), userController.createTrainer)
+router.post(
+  "/trainers",
+  auth(UserRole.ADMIN),
+  validateRequest(createTrainerSchema),
+  userController.createTrainer
+);
 
-router.get("/", authorize(UserRole.ADMIN), userController.getAllUsers)
+router.get("/", auth(UserRole.ADMIN), userController.getAllUsers);
 
-router.get("/:id", authorize(UserRole.ADMIN), validateRequest(getUserSchema), userController.getUserById)
+router.get(
+  "/:id",
+  auth(UserRole.ADMIN),
+  validateRequest(getUserSchema),
+  userController.getUserById
+);
 
-router.put("/:id", authorize(UserRole.ADMIN), validateRequest(updateUserSchema), userController.updateUser)
+router.put(
+  "/:id",
+  auth(UserRole.ADMIN),
+  validateRequest(updateUserSchema),
+  userController.updateUser
+);
 
-router.delete("/:id", authorize(UserRole.ADMIN), validateRequest(getUserSchema), userController.deleteUser)
+router.delete(
+  "/:id",
+  auth(UserRole.ADMIN),
+  validateRequest(getUserSchema),
+  userController.deleteUser
+);
 
 // Trainer schedule (accessible by admin and the trainer themselves)
 router.get(
   "/:id/schedule",
-  authorize(UserRole.ADMIN, UserRole.TRAINER),
+  auth(UserRole.ADMIN, UserRole.TRAINER),
   validateRequest(getUserSchema),
-  userController.getTrainerSchedule,
-)
+  userController.getTrainerSchedule
+);
 
-export default router
+export const userRoutes = router;

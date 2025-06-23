@@ -1,9 +1,8 @@
-import type { Response, NextFunction, Request } from "express"
-import type { AuthenticatedRequest } from "@/shared/types"
-import { userService } from "./user.service"
-import { sendResponse, sendErrorResponse } from "@/shared/utils/response"
-import { UserRole } from "@prisma/client"
-import catchAsync from "../../../shared/catchAsync"
+import type { Response, NextFunction, Request } from "express";
+import { userService } from "./user.service";
+import { UserRole } from "@prisma/client";
+import catchAsync from "../../../shared/catchAsync";
+import { sendResponse } from "../../../shared/sendResponse";
 const createTrainer = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.createTrainer(req.body);
   sendResponse(res, {
@@ -35,7 +34,7 @@ const getUserById = catchAsync(async (req: Request, res: Response) => {
     statusCode: 200,
     message: "User retrieved successfully",
     data: result,
-  })
+  });
 });
 const updateUser = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.updateUser(req.params.id, req.body);
@@ -45,7 +44,7 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
     statusCode: 200,
     message: "User updated successfully",
     data: result,
-  })
+  });
 });
 const deleteUser = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.deleteUser(req.params.id);
@@ -55,7 +54,7 @@ const deleteUser = catchAsync(async (req: Request, res: Response) => {
     statusCode: 200,
     message: "User deleted successfully",
     data: result,
-  })
+  });
 });
 const getTrainerSchedule = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.getTrainerSchedule(req.params.id);
@@ -65,8 +64,9 @@ const getTrainerSchedule = catchAsync(async (req: Request, res: Response) => {
     statusCode: 200,
     message: "Trainer schedule retrieved successfully",
     data: result,
-  })
-});const getMyProfile = catchAsync(async (req: Request, res: Response) => {
+  });
+});
+const getMyProfile = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.getUserById(req.user!.id);
 
   sendResponse(res, {
@@ -74,9 +74,18 @@ const getTrainerSchedule = catchAsync(async (req: Request, res: Response) => {
     statusCode: 200,
     message: "Profile retrieved successfully",
     data: result,
-  })
+  });
 });
+const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const result = await userService.updateUser(req.user!.id, req.body);
 
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Profile updated successfully",
+    data: result,
+  });
+});
 
 export const userController = {
   createTrainer,
@@ -85,44 +94,6 @@ export const userController = {
   updateUser,
   deleteUser,
   getTrainerSchedule,
-  getMyProfile
-};
-
-
-
-
-
- 
-
-
-
-  async updateMyProfile(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try {
-      // Remove role from update data for non-admin users
-      const updateData = { ...req.body }
-      if (req.user!.role !== UserRole.ADMIN) {
-        delete updateData.role
-      }
-
-      const result = await userService.updateUser(req.user!.id, updateData)
-
-      sendResponse(res, {
-        success: true,
-        statusCode: 200,
-        message: "Profile updated successfully",
-        data: result,
-      })
-    } catch (error) {
-      next(error)
-    }
-  },
-}
-export const userContainer = {
-  createTrainer,
-  getAllTrainers,
-  getTrainerById,
-  updateTrainer,
-  deleteTrainer,
   getMyProfile,
   updateMyProfile,
-}
+};

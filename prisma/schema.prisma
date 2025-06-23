@@ -30,7 +30,7 @@ model User {
   updatedAt      DateTime        @updatedAt
   ClassSchedule  ClassSchedule[]
   trainedClasses ClassSchedule[] @relation("TrainerClasses")
-  Booking        Booking[]
+  bookings        Booking[]
 
   @@map("users")
 }
@@ -51,7 +51,7 @@ model ClassSchedule {
   trainer User      @relation("TrainerClasses", fields: [trainerId], references: [id])
   User    User?     @relation(fields: [userId], references: [id])
   userId  String?   @db.ObjectId
-  Booking Booking[]
+  bookings Booking[]
 
   @@map("class_schedules")
 }

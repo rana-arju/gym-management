@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import { Prisma } from "@prisma/client";
+import AppError from "../app/error/AppError";
 
 export const globalErrorHandler = (
   error: any,
@@ -20,13 +21,34 @@ export const globalErrorHandler = (
       field: err.path.join("."),
       message: err.message,
     }));
+  } else if (error instanceof AppError) {
+    statusCode = error?.statusCode;
+    message = error.message;
+    errorDetails = error?.message
+      ? [
+          {
+            field: "",
+            message: error?.message,
+          },
+        ]
+      : [];
+  } else if (error instanceof Error) {
+    message = error?.message;
+    errorDetails = error?.message
+      ? [
+          {
+            field: "",
+            message: error?.message,
+          },
+        ]
+      : [];
   }
-
   // Prisma errors
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2002") {
       statusCode = 409;
       message = "Duplicate entry found.";
+
       errorDetails = "A record with this information already exists.";
     } else if (error.code === "P2025") {
       statusCode = 404;

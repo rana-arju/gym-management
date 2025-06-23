@@ -1,60 +1,52 @@
-import type { Response, NextFunction } from "express";
-import type { UserRole } from "@prisma/client";
-import { AuthenticatedRequest } from "../types";
-import { sendErrorResponse } from "../shared/sendResponse";
-import { verifyToken } from "../app/utils/jwt";
+import { UserRole } from "@prisma/client";
+import { NextFunction, Request, Response } from "express";
+import prisma from "../shared/database";
+import AppError from "../app/error/AppError";
 
-
-export const authenticate = (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
-
-    if (!token) {
-      return sendErrorResponse(
-        res,
-        401,
-        "Unauthorized access.",
-        "Access token is required."
-      );
+// Extend Express Request interface to include 'user'
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        role: UserRole;
+        email: string;
+      };
     }
-
-    const decoded = verifyToken(token, process.env.JWT_SECRET as string);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return sendErrorResponse(
-      res,
-      401,
-      "Unauthorized access.",
-      "Invalid or expired token."
-    );
   }
-};
+}
 
-export const authorize = (...roles: UserRole[]) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      return sendErrorResponse(
-        res,
-        401,
-        "Unauthorized access.",
-        "User not authenticated."
-      );
+export const auth = (...requiredRoles: UserRole[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.headers.authorization?.split(" ")[1]; // Get userId from "Bearer <userId>"
+
+    if (!userId) {
+      return next(new AppError(401, "You are unauthorized to access"));
     }
 
-    if (!roles.includes(req.user.role)) {
-      return sendErrorResponse(
-        res,
-        403,
-        "Unauthorized access.",
-        `You must be ${roles.join(" or ")} to perform this action.`
-      );
+    // Fetch user from MongoDB using Prisma based on the userId passed in the token
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return next(new AppError(404, "User not found"));
     }
 
+  
+
+    // Check for role-based access control
+    if (
+      requiredRoles.length &&
+      !requiredRoles.includes(user.role as UserRole)
+    ) {
+      return next(
+        new AppError(403, "You are not authorized to access this resource")
+      );
+    }
+    req.user = {
+      id: user.id,
+      role: user?.role as UserRole,
+      email: user?.email,
+    }; // Set user in the request object
     next();
   };
 };
