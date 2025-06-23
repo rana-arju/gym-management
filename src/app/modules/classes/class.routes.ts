@@ -3,7 +3,7 @@ import { classController } from "./class.controller"
 
 import { createClassSchema, updateClassSchema, getClassSchema } from "./class.validation"
 import { UserRole } from "@prisma/client"
-import { auth } from "../../../middlewares/auth"
+import auth  from "../../../middlewares/auth"
 import { validateRequest } from "../../../middlewares/validation"
 
 const router = Router()

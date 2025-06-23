@@ -7,7 +7,7 @@ import {
 } from "./user.validation";
 import { UserRole } from "@prisma/client";
 import { validateRequest } from "../../../middlewares/validation";
-import { auth } from "../../../middlewares/auth";
+import auth from "../../../middlewares/auth";
 
 const router = Router();
 

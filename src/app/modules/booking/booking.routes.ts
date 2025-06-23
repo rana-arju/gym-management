@@ -3,7 +3,7 @@ import { bookingController } from "./booking.controller"
 
 import { createBookingSchema, cancelBookingSchema } from "./booking.validation"
 import { UserRole } from "@prisma/client"
-import { auth } from "../../../middlewares/auth"
+import auth  from "../../../middlewares/auth"
 import { validateRequest } from "../../../middlewares/validation"
 
 const router = Router()

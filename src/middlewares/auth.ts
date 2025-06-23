@@ -2,6 +2,11 @@ import { UserRole } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import prisma from "../shared/database";
 import AppError from "../app/error/AppError";
+import { verifyToken } from "../app/utils/jwt";
+import config from "../config";
+import { Secret } from "jsonwebtoken";
+import { AuthenticatedRequest } from "../types";
+import { sendErrorResponse } from "../shared/sendResponse";
 
 // Extend Express Request interface to include 'user'
 declare global {
@@ -16,37 +21,28 @@ declare global {
   }
 }
 
-export const auth = (...requiredRoles: UserRole[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.headers.authorization?.split(" ")[1]; // Get userId from "Bearer <userId>"
 
-    if (!userId) {
-      return next(new AppError(401, "You are unauthorized to access"));
+
+const auth = (...roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const token = req.headers.authorization;
+      if (!token) {
+        throw new AppError(401, "Unauthorized: No token provided");
+      }
+      const verify = verifyToken(token, config.jwt.jwtSecret as Secret);
+      
+      if (!verify || !roles.includes(verify.role)) {
+        throw new AppError(
+          403,
+          "Forbidden: You do not have permission to access this resource"
+        );
+      }
+      req.user = verify;
+      next();
+    } catch (error) {
+      next(error);
     }
-
-    // Fetch user from MongoDB using Prisma based on the userId passed in the token
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-
-    if (!user) {
-      return next(new AppError(404, "User not found"));
-    }
-
-  
-
-    // Check for role-based access control
-    if (
-      requiredRoles.length &&
-      !requiredRoles.includes(user.role as UserRole)
-    ) {
-      return next(
-        new AppError(403, "You are not authorized to access this resource")
-      );
-    }
-    req.user = {
-      id: user.id,
-      role: user?.role as UserRole,
-      email: user?.email,
-    }; // Set user in the request object
-    next();
   };
 };
+export default auth;
