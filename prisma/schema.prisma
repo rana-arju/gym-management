@@ -30,6 +30,7 @@ model User {
   updatedAt      DateTime        @updatedAt
   ClassSchedule  ClassSchedule[]
   trainedClasses ClassSchedule[] @relation("TrainerClasses")
+  Booking        Booking[]
 
   @@map("users")
 }
@@ -47,9 +48,26 @@ model ClassSchedule {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  trainer User    @relation("TrainerClasses", fields: [trainerId], references: [id])
-  User    User?   @relation(fields: [userId], references: [id])
-  userId  String? @db.ObjectId
+  trainer User      @relation("TrainerClasses", fields: [trainerId], references: [id])
+  User    User?     @relation(fields: [userId], references: [id])
+  userId  String?   @db.ObjectId
+  Booking Booking[]
 
   @@map("class_schedules")
+}
+
+model Booking {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  traineeId       String        @db.ObjectId
+  classScheduleId String        @db.ObjectId
+  status          BookingStatus @default(CONFIRMED)
+  bookedAt        DateTime      @default(now())
+  cancelledAt     DateTime?
+
+  // Relations
+  trainee       User          @relation(fields: [traineeId], references: [id])
+  classSchedule ClassSchedule @relation(fields: [classScheduleId], references: [id])
+
+  @@unique([traineeId, classScheduleId])
+  @@map("bookings")
 }
