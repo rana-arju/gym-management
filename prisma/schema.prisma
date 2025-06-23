@@ -6,6 +6,7 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
 enum UserRole {
   ADMIN
   TRAINER
@@ -16,17 +17,39 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
 }
-model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
-  password  String
-  name      String
-  role      UserRole @default(TRAINEE)
-  phone     String?
-  address   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
+model User {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  email          String          @unique
+  password       String
+  name           String
+  role           UserRole        @default(TRAINEE)
+  phone          String?
+  address        String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  ClassSchedule  ClassSchedule[]
+  trainedClasses ClassSchedule[] @relation("TrainerClasses")
 
   @@map("users")
+}
+
+model ClassSchedule {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  date        DateTime
+  startTime   DateTime
+  endTime     DateTime
+  maxTrainees Int      @default(10)
+  trainerId   String   @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  trainer User    @relation("TrainerClasses", fields: [trainerId], references: [id])
+  User    User?   @relation(fields: [userId], references: [id])
+  userId  String? @db.ObjectId
+
+  @@map("class_schedules")
 }
