@@ -9,6 +9,8 @@ const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const globalErrorHandler_1 = require("./middlewares/globalErrorHandler");
+const routes_1 = __importDefault(require("./app/routes"));
 // Load environment variables
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -29,6 +31,7 @@ app.use((0, morgan_1.default)("combined"));
 app.use(express_1.default.json({ limit: "10mb" }));
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(limiter);
+app.use("/api/v1", routes_1.default);
 // Health check
 app.get("/", (req, res) => {
     res.status(200).json({
@@ -40,6 +43,8 @@ app.get("/", (req, res) => {
         timestamp: new Date().toISOString(),
     });
 });
+// Error handling middleware
+app.use(globalErrorHandler_1.globalErrorHandler);
 app.use((req, res, next) => {
     res.status(404).json({
         success: false,

@@ -4,6 +4,9 @@ import helmet from "helmet";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+import { notFoundHandler } from "./middlewares/notFoundHandler";
+import { globalErrorHandler } from "./middlewares/globalErrorHandler";
+import router from "./app/routes";
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +31,7 @@ app.use(morgan("combined"));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
+app.use("/api/v1", router);
 
 // Health check
 app.get("/", (req: Request, res: Response) => {
@@ -40,6 +44,8 @@ app.get("/", (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
   });
 });
+// Error handling middleware
+app.use(globalErrorHandler)
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).json({
     success: false,
