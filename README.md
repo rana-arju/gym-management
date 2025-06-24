@@ -27,7 +27,10 @@ OR
 https://documenter.getpostman.com/view/20671458/2sB2xCiAAq
 ```
 
-
+## Live URL
+```
+https://gym-management-alpha-inky.vercel.app
+```
 ## Login Credentials
 
 📋 Sample Login Credentials:
@@ -49,6 +52,9 @@ Trainee:
 Email: trainee1@gym.com
 Pass:trainee123
 ```
+## 📊 Entity Relationship Diagram
+
+![ER Diagram](https://res.cloudinary.com/db8l1ulfq/image/upload/v1750783789/gym_management_2_ukhq6k.png)
 
 ## 📁 Project Structure
 
