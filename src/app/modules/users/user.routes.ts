@@ -33,11 +33,12 @@ router.post(
   userController.createTrainer
 );
 
-router.get("/", auth(UserRole.ADMIN), userController.getAllUsers);
+// Admin only routes
+router.get("/", auth(UserRole.ADMIN, UserRole.TRAINER), userController.getAllUsers);
 
 router.get(
   "/:id",
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.TRAINER),
   validateRequest(getUserSchema),
   userController.getUserById
 );

@@ -11,11 +11,16 @@ const auth = (...roles) => {
         try {
             const token = req.headers.authorization;
             if (!token) {
-                throw new AppError_1.default(401, "Unauthorized: No token provided");
+                throw new AppError_1.default(401, "Unauthorized access.", "No token provided.");
             }
             const verify = (0, jwt_1.verifyToken)(token, config_1.default.jwt.jwtSecret);
-            if (!verify || !roles.includes(verify.role)) {
-                throw new AppError_1.default(403, "Forbidden: You do not have permission to access this resource");
+            if (!verify) {
+                throw new AppError_1.default(401, "Unauthorized access.", "Invalid or expired token.");
+            }
+            if (roles.length && !roles.includes(verify.role)) {
+                throw new AppError_1.default(403, "Unauthorized access.", `You must be a ${roles
+                    .join(" or ")
+                    .toLowerCase()} to perform this action.`);
             }
             req.user = verify;
             next();

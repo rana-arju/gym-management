@@ -17,6 +17,6 @@ router.post("/", (0, auth_1.default)(client_1.UserRole.ADMIN), (0, validation_1.
 router.put("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), (0, validation_1.validateRequest)(class_validation_1.updateClassSchema), class_controller_1.classController.updateClass);
 router.delete("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), (0, validation_1.validateRequest)(class_validation_1.getClassSchema), class_controller_1.classController.deleteClass);
 // Routes accessible by all authenticated users
-router.get("/", class_controller_1.classController.getAllClasses);
-router.get("/:id", (0, validation_1.validateRequest)(class_validation_1.getClassSchema), class_controller_1.classController.getClassById);
+router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.TRAINEE, client_1.UserRole.TRAINER), class_controller_1.classController.getAllClasses);
+router.get("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.TRAINEE, client_1.UserRole.TRAINER), (0, validation_1.validateRequest)(class_validation_1.getClassSchema), class_controller_1.classController.getClassById);
 exports.classRoutes = router;

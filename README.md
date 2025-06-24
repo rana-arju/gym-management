@@ -21,6 +21,13 @@ A comprehensive backend system for managing gym operations with role-based acces
 - **Validation**: Zod
 - **Security**: Helmet, CORS, Rate Limiting
 
+# [Postman Documentation](https://documenter.getpostman.com/view/20671458/2sB2xCiAAq)
+OR
+```
+https://documenter.getpostman.com/view/20671458/2sB2xCiAAq
+```
+
+
 ## Login Credentials
 
 📋 Sample Login Credentials:

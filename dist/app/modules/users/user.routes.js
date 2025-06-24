@@ -17,8 +17,9 @@ router.get("/profile", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.Use
 router.put("/profile", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.TRAINEE, client_1.UserRole.TRAINER), user_controller_1.userController.updateMyProfile);
 // Admin only routes
 router.post("/trainers", (0, auth_1.default)(client_1.UserRole.ADMIN), (0, validation_1.validateRequest)(user_validation_1.createTrainerSchema), user_controller_1.userController.createTrainer);
-router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN), user_controller_1.userController.getAllUsers);
-router.get("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), (0, validation_1.validateRequest)(user_validation_1.getUserSchema), user_controller_1.userController.getUserById);
+// Admin only routes
+router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.TRAINER), user_controller_1.userController.getAllUsers);
+router.get("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.TRAINER), (0, validation_1.validateRequest)(user_validation_1.getUserSchema), user_controller_1.userController.getUserById);
 router.put("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), (0, validation_1.validateRequest)(user_validation_1.updateUserSchema), user_controller_1.userController.updateUser);
 router.delete("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), (0, validation_1.validateRequest)(user_validation_1.getUserSchema), user_controller_1.userController.deleteUser);
 // Trainer schedule (accessible by admin and the trainer themselves)
